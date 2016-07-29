@@ -1,0 +1,1 @@
+<g:select name="associationSelect" from="${allItems}" optionKey="id" optionValue="title" multiple="multiple"/>

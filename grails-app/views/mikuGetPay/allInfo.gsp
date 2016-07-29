@@ -1,0 +1,474 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: unescc
+  Date: 2015/11/5
+  Time: 20:05
+--%>
+
+<%--
+  Created by IntelliJ IDEA.
+  User: spider
+  Date: 14/11/10
+  Time: 下午1:20
+--%>
+<%@ page import="org.apache.commons.lang3.StringUtils" contentType="text/html;charset=UTF-8" %>
+
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="layout" content="homepage">
+
+    <title>订单管理</title>
+    <!-- bootstrap 3.0.2 -->
+    <asset:stylesheet src="bootstrap.min.css"/>
+    <!-- font Awesome -->
+    <asset:stylesheet src="font-awesome.min.css"/>
+    <!-- Ionicons -->
+    <asset:stylesheet src="ionicons.min.css"/>
+    <!-- Theme style -->
+    <asset:stylesheet src="AdminLTE.css"/>
+    <!-- pagination -->
+    <asset:stylesheet src="jquery.pagination_2/pagination.css"/>
+    <!-- Bootstrap time Picker -->
+    <asset:stylesheet src="bootstrap-datetimepicker/bootstrap-datetimepicker.min.css"/>
+    <!-- validation -->
+    <asset:stylesheet src="bootstrapValidator/bootstrapValidator.css"/>
+    <!-- sticky -->
+    <asset:stylesheet src="sticky/sticky.css"/>
+    <!-- iCheck -->
+    <asset:stylesheet src="iCheck/square/blue.css"/>
+
+    <asset:stylesheet src="skins/skin-blue.css"/>
+
+</head>
+
+<body>
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        全部提现信息
+        <small>提现管理</small>
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i>全部提现信息</a></li>
+        <li class="active">提现管理</li>
+    </ol>
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="row">
+        <div class='col-xs-12'>
+
+            <div class="nav-tabs-custom">
+
+                <ul class="nav nav-tabs" id="myTab">
+                    <li><g:link action="index" controller="mikuGetPay">未审核提现</g:link></li>
+                    <li  class="active"><g:link action="allInfo" controller="mikuGetPay">全部提现</g:link></li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane active">
+                        <div class="box box-primary">
+                            <div class="box-header">
+
+                                <g:form action="allInfo" class="form-inline" useToken="true">
+                                    <table style="width:100%">
+                                        <tr>
+                                            <td>
+                                                <g:select optionKey="key" optionValue="value" name="payType"
+                                                          value="${params.payType}"
+                                                          class="form-control" from="${payTypeMap.entrySet()}"
+                                                          noSelection="['': '收款方式：']"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                下单时间：
+                                                <div class="input-group no-padding">
+                                                    <div class="input-group-addon">
+                                                        <i class="fa fa-clock-o"></i>
+                                                    </div><input value="${params.startTime}"
+                                                                 name="startTime"
+                                                                 class="input-sm form_datetime"
+                                                                 style="width: 130px"
+                                                                 readonly/>
+                                                </div><!-- /.input group -->
+                                                <span>至</span>
+
+                                                <div class="input-group no-padding">
+                                                    <div class="input-group-addon">
+                                                        <i class="fa fa-clock-o"></i>
+                                                    </div><input value="${params.endTime}"
+                                                                 name="endTime"
+                                                                 class="input-sm form_datetime"
+                                                                 style="width: 130px"
+                                                                 readonly/>
+                                                </div><!-- /.input group -->
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span>订单实付：</span>
+
+                                                <g:select optionKey="key" optionValue="value" name="totalFeeOp"
+                                                          value="${params.totalFeeOp ?: '>'}"
+                                                          class="form-control" from="${totalFeeOpMap.entrySet()}"/>
+
+                                                <g:textField name="targetTotalFee" value="${params.targetTotalFee}"/>
+
+                                                <div class="input-group no-padding">
+                                                    <div class="input-group-addon">
+                                                        <i class="fa fa-mobile-phone"></i>手机号码:
+                                                    </div>
+                                                    <input id="query" name="agencyMobile" class="input-sm"
+                                                           data-inputmask='"mask": "999-9999-9999"'
+                                                           data-mask="true"
+                                                           value="${params.agencyMobile}"
+                                                           style="width: 120px"
+                                                           placeholder="用户号码:"/>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                        <td>
+                                        排序方式：</span>
+                                        %{--<g:select optionKey="key" optionValue="value" name="orderEntry"--}%
+                                        %{--value="${params.orderEntry ?: "total_fee"}"--}%
+                                        %{--class="form-control" from="${orderEntryMap.entrySet()}"/>--}%
+
+                                        <g:select optionKey="key" optionValue="value" name="order"
+                                        value="${params.order ?: "-"}"
+                                        class="form-control" from="${orderMap.entrySet()}" />
+                                        </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <button type="submit"
+                                                        class="btn btn-primary"><i
+                                                        class="fa fa-search">查询</i></button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </g:form>
+                            </div>
+
+                            <div class="box-body table-responsive no-padding">
+                                <g:form action="shipTradeChecked" params="${params}" id="shipBox">
+                                    <table style="table-layout:fixed" class="table table-hover table-striped table-bordered text-center">
+                                        <tr>
+                                            <th><i class="fa fa-flag"></i>用户名</th>
+                                            <th><i class="fa fa-flag"></i>类型</th>
+                                            <th><i class="fa fa-clock-o"></i>用户手机号</th>
+                                            <th style="width: 10%"><i class="fa fa-user"></i>操作日期</th>
+                                            <th style="width: 7%"><i class="fa fa-map-marker"></i>金额</th>
+                                            <th style="width: 20%"><i class="fa fa-money"></i>提现账户</th>
+                                            <th style="width: 10%"><i class="fa fa-indent"></i>账户姓名</th>
+                                            <th ><i class="fa fa-indent"></i>操作员</th>
+                                            <th ><i class="fa fa-indent"></i>申请状态</th>
+                                            %{--<th style="width: 8%"><i class="fa fa-hand-o-down"></i>操作--}%
+                                                %{--<label>--}%
+                                                    %{--<input type="checkbox" id="checkAll">--}%
+                                                %{--</label>--}%
+                                            %{--</th>--}%
+                                        </tr>
+                                        <g:if test="${total > 0}">
+                                            <g:each status="i" in="${getPayList}" var="getPay">
+                                                <tr id="${getPay.id}" class="info">
+                                                    <th>
+                                                        ${getPay.agencyNickname}
+                                                    </th>
+                                                    <th>
+                                                        <g:if test="${getPay.getpayType == 1 as byte}">
+                                                            <div style="padding-top: 10px">
+                                                                <span style="color: #a47e3c">支付宝</span>
+                                                            </div>
+                                                        </g:if>
+                                                        <g:if test="${getPay.getpayType == 2 as byte}">
+                                                            <div style="padding-top: 10px">
+                                                                <span style="color: #a47e3c">微信钱包</span>
+                                                            </div>
+                                                        </g:if>
+                                                        <g:if test="${getPay.getpayType == 3 as byte}">
+                                                            <div style="padding-top: 10px">
+                                                                <span style="color: #a47e3c">银行卡</span>
+                                                            </div>
+                                                        </g:if>
+                                                    </th>
+                                                    <th style="width: 110px">${getPay.agencyMobile}</th>
+                                                    <th>
+                                                        ${getPay.lastUpated}
+                                                    </th>
+                                                    <th>
+                                                        ${getPay.getpayFee}元
+                                                    </th>
+                                                    <th>
+                                                        ${getPay.getpayAccount}
+                                                    </th>
+
+                                                    <th style="color: #72afd2">
+                                                        ${getPay.getpayUserName}
+                                                    </th>
+                                                    <th>
+                                                        ${getPay.clerkerName}
+                                                    </th>
+                                                    <th>
+                                                        <g:if test="${getPay.status == 0 as byte}">
+                                                            <div style="padding-top: 10px">
+                                                                <span style="color: #265a88">提现中</span>
+                                                            </div>
+                                                        </g:if>
+
+                                                        <g:if test="${getPay.status == 1 as byte}">
+                                                            <div style="padding-top: 10px">
+                                                                <span style="color: #ff0000">已审核</span>
+                                                            </div>
+                                                        </g:if>
+
+                                                        <g:if test="${getPay.status == 2 as byte}">
+                                                            <div style="padding-top: 10px">
+                                                                <span style="color: #3c8dbc">已完成</span>
+                                                            </div>
+                                                        </g:if>
+
+
+                                                    </th>
+                                                    %{--<th>--}%
+                                                        %{--<label>--}%
+                                                            %{--<input type="checkbox" name="modelShipBox"--}%
+                                                                   %{--value="${getPay?.id}">--}%
+                                                        %{--</label>--}%
+                                                    %{--</th>--}%
+                                                </tr>
+
+                                            </g:each>
+                                        </g:if>
+                                    </table>
+
+
+                                    %{--<div class="pull-right">--}%
+                                        %{--<button type="button" id="outPortExcelByTradebtn"--}%
+                                                %{--class="btn btn-sm btn-primary pull-left"><i--}%
+                                                %{--class="fa fa-print">批量导出</i></button>--}%
+                                        %{--<button type="button" id="ExcelAllBtn"--}%
+                                                %{--class="btn btn-sm btn-primary pull-left"><i--}%
+                                                %{--class="fa fa-print">全部打印</i></button>&nbsp;&nbsp;&nbsp;&nbsp;--}%
+
+                                        %{--<button type="submit" onclick="return confirm('请确认是否导出Excel')"--}%
+                                                %{--class="btn btn-sm btn-success"><i--}%
+                                                %{--class="fa fa-truck">&nbsp;审核</i></button>--}%
+                                    %{--</div>--}%
+                                </g:form>
+                            %{--测试打印--}%
+                                <g:form action="outPortExcel"  style="display: none;">
+                                    <input type="text" id="TradeExcelids" name="TradeExcelids" />
+                                    <input type="submit"  id="outPortExcelByTradeFormsubmit">
+                                </g:form>
+
+                            %{--全部打印--}%
+                                <g:form action="outPortAllExcel"  style="display: none;">
+                                    <input type="submit"  id="outPortAllExcelByTradeFormsubmit">
+                                </g:form>
+                            </div><!-- /.box-body -->
+
+
+                            <div class="box-footer clearfix">
+                                <div>
+                                    <i class="fa fa-check"></i>共计
+                                    <span style="color: red">${total}</span>个订单
+                                </div>
+
+                                <div class="pagination pull-right">
+                                    <g:paginate next="下一页" prev="上一页" params="${params}"
+                                                maxsteps="10" action="allInfo" total="${viewTotal}"/>
+                                </div>
+
+                            </div>
+                        </div><!-- /.box -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section><!-- /.content -->
+
+
+%{--<div class="modal fade bs-example-modal-lg" id="tradeDetailModel" tabindex="-1" role="dialog"--}%
+     %{--aria-labelledby="myModalLabel"--}%
+     %{--aria-hidden="true">--}%
+    %{--<div class="modal-dialog">--}%
+        %{--<div class="modal-content">--}%
+
+            %{--<div class="modal-header bg-blue-gradient">--}%
+                %{--<button type="button" class="close" data-dismiss="modal"><span--}%
+                        %{--aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>--}%
+
+                %{--<h2 class="modal-title h2" id="tradeId">订单号：</h2>--}%
+            %{--</div>--}%
+
+            %{--<div class="modal-body">--}%
+                %{--<div id="tradeDetail">--}%
+                    %{--<g:render template="tradeDetail"/>--}%
+                %{--</div>--}%
+            %{--</div>--}%
+
+            %{--<div class="modal-footer">--}%
+            %{--</div>--}%
+        %{--</div>--}%
+    %{--</div>--}%
+%{--</div>--}%
+
+
+<div id="printerDiv" style="display:none"></div>
+<!-- Jquery -->
+<asset:javascript src="jquery-2.1.3.js"/>
+<!-- jQuery UI 1.10.3 -->
+<asset:javascript src="jQueryUI/jquery-ui-1.10.3.js"/>
+<!-- Bootstrap -->
+<asset:javascript src="bootstrap.js"/>
+<!-- AdminLTE App -->
+<asset:javascript src="app.js"/>
+<!-- InputMask -->
+<asset:javascript src="input-mask/jquery.inputmask.js"/>
+<asset:javascript src="input-mask/jquery.inputmask.date.extensions.js"/>
+<asset:javascript src="input-mask/jquery.inputmask.extensions.js"/>
+<!-- bootstrap time picker -->
+<asset:javascript src="bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"/>
+<asset:javascript src="bootstrap-datetimepicker/locales/bootstrap-datetimepicker.zh-CN.js"/>
+<!-- sticky -->
+<asset:javascript src="sticky/sticky.js"/>
+<!-- iCheck -->
+<asset:javascript src="iCheck/icheck.min.js"/>
+
+<!-- tdist.js -->
+<script src="http://a.tbcdn.cn/p/address/120214/tdist.js"></script>
+
+
+<script>
+
+    %{--打印Excel的操作--}%
+    //============================================================
+    $("#outPortExcelByTradebtn").on('click',function(){
+        var tradeArr=[];
+        debugger;
+        $('input[name="tradeShipBox"]:checked').each(function (index, ele) {
+            tradeArr.push($(this).val());
+        });
+        if(!tradeArr.length)
+        {
+            alert("请选中对应的订单信息");
+            return;
+        }
+        $("#TradeExcelids").val(tradeArr.join(","));
+        //进行表单的提交
+        $("#outPortExcelByTradeFormsubmit").click();
+    })
+
+    //全选的功能
+    $("#ExcelAllBtn").on('click',function(){
+        $("#outPortAllExcelByTradeFormsubmit").click();
+    })
+
+    //============================================================
+
+    $('input').iCheck({
+        checkboxClass: 'icheckbox_square-blue',
+        radioClass: 'iradio_square-blue',
+        increaseArea: '20%' // optional
+    });
+
+    var submitBtn = $('#multiPrint').on('click', function (event) {
+        printTrades()
+        return false;
+    });
+
+    function printTrades() {
+        $('input[name="tradeShipBox"]:checked').each(function (index, ele) {
+            var tradeId = $(this).val();
+            printExternal("/printTrade/index?id=" + tradeId)
+        });
+    }
+
+    function printExternal(url) {
+        var printWindow = window.open(url);
+        printWindow.addEventListener('load', function () {
+            printWindow.print();
+            printWindow.close();
+        }, true);
+    }
+
+
+    function modifyaddr(id) {
+        $("textarea").each(function change() {
+            if (id == this.name) {
+                var modifyaddr = this.value
+                $.ajax({
+                    url: '/trade/modifyAddr',
+                    data: {'id': id, 'modifyaddr': modifyaddr},
+                    type: "POST",
+                    dataType: "json",
+                    success: function (data) {
+                        $.sticky("修改地址成功", {autoclose: 2000, position: "top-center", type: "st-success"});
+                    },
+                    error: function (data) {
+                        $.sticky("操作失败", {autoclose: 2000, position: "top-right", type: "st-error"});
+                    }
+                });
+            }
+        });
+    }
+
+    $("input[name='tradeShipBox']").on('ifChecked', function (event) {
+        var id = this.value
+        $("input[name='exportBox']").each(function check() {
+            if (id == this.value) {
+                $(this).iCheck('check');
+            }
+        });
+    });
+    $("input[name='tradeShipBox']").on('ifUnchecked', function (event) {
+        var id = this.value
+        $("input[name='exportBox']").each(function check() {
+            if (id == this.value) {
+                $(this).iCheck('check');
+            }
+        });
+    });
+
+    $("#checkAll").on('ifChecked', function (event) {
+        $("input[name='tradeShipBox']").each(function check() {
+            $(this).iCheck('check');
+        });
+    });
+
+    $("#checkAll").on('ifUnchecked', function (event) {
+        $("input[name='tradeShipBox']").each(function check() {
+            $(this).iCheck('uncheck');
+        });
+
+    });
+
+    function lookTradeDetail(id) {
+        $("#sendId").val(id)
+
+        $("#tradeId").text('订单号:' + id)
+
+        jQuery.ajax({
+            type: 'POST', data: {'tradeId': id}, url: '/trade/lookTradeDetail', success: function (data, textStatus) {
+                jQuery('#tradeDetail').html(data);
+            }, error: function (XMLHttpRequest, textStatus, errorThrown) {
+            }
+        });
+    }
+
+    $(".form_datetime")
+            .datetimepicker({format: 'yyyy-mm-dd hh:ii', language: 'zh-CN', autoclose: true})
+            .on('changeDate', function (ev) {
+                var value = moment(ev.date.valueOf()).subtract(8, 'hour').format("YYYY-MM-DD HH:mm")
+                $('#acceptTime').val(value)
+            });
+
+    $("#query").inputmask();
+
+</script>

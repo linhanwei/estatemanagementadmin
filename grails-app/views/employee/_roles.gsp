@@ -1,0 +1,1 @@
+<g:select name="roleSelect" from="${roleNames}" multiple="multiple"/>

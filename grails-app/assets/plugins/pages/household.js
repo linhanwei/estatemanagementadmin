@@ -1,0 +1,7 @@
+
+
+household = {
+    init : function() {
+
+    }
+}

@@ -1,0 +1,32 @@
+.pagination {
+    /*font-size: 80%;*/
+}
+
+.pagination a {
+    text-decoration: none;
+    border: solid 1px #3C8DBC;
+    color: #3C8DBC;
+}
+
+.pagination a, .pagination span {
+    display:inline-block;
+    /*float: left;*/ /*2012-02-22 by liusan.dyf*/
+    padding: 0.3em 0.5em;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    min-width:1em;
+    text-align:center;
+    border-radius: 3px;
+}
+
+.pagination .current {
+    background: #3C8DBC;
+    color: #fff;
+    border: solid 1px #3C8DBC;/*2012-05-24 by liusan.dyf*/
+}
+
+.pagination .current.prev, .pagination .current.next{
+    color:#999;
+    border-color:#999;
+    background:#fff;
+}

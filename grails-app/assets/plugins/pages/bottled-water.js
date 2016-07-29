@@ -1,0 +1,7 @@
+
+
+water = {
+    init : function() {
+
+    }
+}
